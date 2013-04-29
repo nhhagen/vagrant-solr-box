@@ -72,6 +72,12 @@ class must-have {
     require => Exec["download_solr"]
   }
 
+  file { "/etc/init.d/solr":
+    ensure => link,
+    target => "/etc/init/solr.conf",
+    require => File["/etc/init/solr.conf"],
+  }
+
   service { "solr":
     enable => true,
     ensure => running,
@@ -79,7 +85,7 @@ class must-have {
     provider => "upstart",
     #hasrestart => true,
     #hasstatus => true,
-    require => File["/etc/init/solr.conf"],
+    require => [ File["/etc/init/solr.conf"], File["/etc/init.d/solr"], Package["oracle-java7-installer"] ],
   }
 }
 
