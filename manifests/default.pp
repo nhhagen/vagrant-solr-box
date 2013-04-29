@@ -20,29 +20,18 @@ class must-have {
     require => [ Apt::Ppa["ppa:webupd8team/java"], Package["git-core"] ],
   }
 
-  package { ["vim",
-             "curl",
-             "git-core",
-             "bash"]:
+  package { ["vim", "curl", "git-core", "bash"]:
     ensure => present,
     require => Exec["apt-get update"],
     before => Apt::Ppa["ppa:webupd8team/java"],
   }
 
-  package { ["oracle-java7-installer"]:
+  package { "oracle-java7-installer":
     ensure => present,
     require => Exec["apt-get update 2"],
   }
 
-#  file {
-#    "/etc/profile.d/java.sh":
-#    content => "export JAVA_HOME=$(readlink -f /usr/bin/java | sed \"s:jre/bin/java::\")
-#    export PATH=$JAVA_HOME:$PATH",
-#    require => Package["oracle-java7-installer"]
-#  }
-
-  exec {
-    "accept_license":
+  exec { "accept_license":
     command => "echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections && echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections",
     cwd => "/home/vagrant",
     user => "vagrant",
@@ -57,8 +46,7 @@ class must-have {
     before => Exec["download_solr"]
   }
 
-  exec {
-    "download_solr":
+  exec { "download_solr":
     command => "curl -L http://apache.uib.no/lucene/solr/4.2.1/solr-4.2.1.tgz | tar zx --directory=/vagrant/solr --strip-components 1",
     cwd => "/vagrant",
     user => "vagrant",
