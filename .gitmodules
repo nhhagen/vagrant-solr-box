@@ -1,6 +1,12 @@
-[submodule "modules/apt"]
-	path = modules/apt
+[submodule "box/modules/apt"]
+	path = vagrant-solr-box/modules/apt
 	url = https://github.com/puppetlabs/puppetlabs-apt.git
-[submodule "modules/stdlib"]
-	path = modules/stdlib
+[submodule "box/modules/stdlib"]
+	path = vagrant-solr-box/modules/stdlib
+	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
+[submodule "cluster/modules/apt"]
+	path = vagrant-solr-cluster/modules/apt
+	url = https://github.com/puppetlabs/puppetlabs-apt.git
+[submodule "cluster/modules/stdlib"]
+	path = vagrant-solr-cluster/modules/stdlib
 	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
