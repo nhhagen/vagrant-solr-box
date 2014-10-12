@@ -41,29 +41,53 @@ class must-have {
     logoutput => true,
   }
 
-  file { "/vagrant/solr":
-    ensure => directory,
-    before => Exec["download_solr"]
+  exec { "check_solr_not_downloaded":
+    command => '/bin/false',
+    onlyif => '/usr/bin/test -e /vagrant/solr.tgz'
+  }
+
+  exec { "check_solr_downloaded":
+    command => '/bin/true',
+    onlyif => '/usr/bin/test -e /vagrant/solr.tgz'
   }
 
   exec { "download_solr":
-    command => "curl -L http://apache.komsys.org/lucene/solr/4.9.0/solr-4.9.0.tgz | tar zx --directory=/vagrant/solr --strip-components 1",
+    command => "curl -o /vagrant/solr.tgz -L http://apache.komsys.org/lucene/solr/4.9.0/solr-4.9.0.tgz",
     cwd => "/vagrant",
     user => "vagrant",
     path => "/usr/bin/:/bin/",
-    require => Exec["accept_license"],
-    logoutput => true,
+    require => [Exec["check_solr_not_downloaded"], Exec["accept_license"]],
+    logoutput => true
   }
 
-  file { "/etc/init/solr.conf":
-    source => "/vagrant/scripts/etc/init/solr.conf",
-    require => Exec["download_solr"]
+  exec { "extract_solr":
+    command => "tar zx -f /vagrant/solr.tgz --directory=/vagrant/${machine_name}/solr --strip-components 1 --exclude */docs/**",
+    cwd => "/vagrant",
+    user => "vagrant",
+    path => "/usr/bin/:/bin/",
+    require => [Exec["check_solr_downloaded"], File["/vagrant/${machine_name}/solr/"]]
+  }
+
+  file { "/vagrant/${machine_name}":
+    ensure => directory
+  }
+
+  file { "/vagrant/${machine_name}/solr/":
+    ensure       => directory,
+    require      => File["/vagrant/${machine_name}"]
+  }
+
+
+  file { "solr.conf":
+    path => "/etc/init/solr.conf",
+    content => template("/vagrant/scripts/etc/init/solr.conf.erb"),
+    require => Exec["extract_solr"]
   }
 
   file { "/etc/init.d/solr":
     ensure => link,
     target => "/etc/init/solr.conf",
-    require => File["/etc/init/solr.conf"],
+    require => File["solr.conf"],
   }
 
   service { "solr":

@@ -1,0 +1,21 @@
+# Service script for the Solr search engine
+
+description     "Service script for the Solr search engine"
+author          "Eric Wilson <eric@coolcompany.com>"
+version         "1.0.0"
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+kill timeout 30
+respawn
+
+script
+    export JETTY_HOME=/vagrant/<%= @machine_name %>/solr/example
+    chdir /vagrant/<%= @machine_name %>/solr/example
+    <!-- exec java -jar /vagrant/<%= @machine_name %>/solr/example/start.jar -->
+    <% if @isFirstNode%>
+    exec java -Dbootstrap_confdir=/vagrant/<%= @machine_name %>/solr/example/collection1/conf -Dcollection.configName=myconf -DzkRun -DnumShards=2 -jar start.jar
+    <% else %>
+    <% end %>
+end script
