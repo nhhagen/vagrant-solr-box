@@ -1,0 +1,50 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+node1_ip = "192.168.56.1"
+node2_ip = "192.168.56.2"
+node3_ip = "192.168.56.3"
+node4_ip = "192.168.56.4"
+is_first_node = true
+
+
+def configure_node(node, ip_address, name)
+  
+  node.vm.box = "precise64"
+  node.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  # node.vm.network :forwarded_port, guest: 8983, host: 8983
+  node.vm.network :public_network, bridge: "en0: Wi-Fi (AirPort)"
+  node.vm.network :private_network, ip: ip_address
+  node.vm.provision :puppet, :module_path => "modules" do |puppet|
+    puppet.manifests_path = "manifests"
+    puppet.manifest_file  = "default.pp"
+    puppet.facter = { machine_name: name, is_first_node: is_first_node }
+    puppet.options = [
+      '--show_diff',
+      '--evaltrace',
+      '--summarize'
+    ]
+  end
+  node.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--cpus", "2"]
+    v.customize ["modifyvm", :id, "--memory", "1024"]
+  end
+  
+  is_first_node=false
+end
+
+
+Vagrant.configure("2") do |config|
+  config.vm.define :node1 do |node1|
+    configure_node node1, node1_ip, "solr-node1"
+  end
+  config.vm.define :node2 do |node2|
+    configure_node node2, node2_ip, "solr-node2"
+  end
+  config.vm.define :node3 do |node3|
+    configure_node node3, node3_ip, "solr-node3"
+  end
+  config.vm.define :node4 do |node4|
+    configure_node node4, node4_ip, "solr-node4"
+  end
+end
