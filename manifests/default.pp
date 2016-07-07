@@ -53,6 +53,7 @@ class must-have {
     path => "/usr/bin/:/bin/",
     require => Exec["accept_license"],
     logoutput => true,
+    timeout => 0,
   }
 
   file { "/etc/init/solr.conf":
