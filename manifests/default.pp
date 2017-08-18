@@ -26,19 +26,9 @@ class must-have {
     before => Apt::Ppa["ppa:webupd8team/java"],
   }
 
-  package { "oracle-java7-installer":
+  package { "openjdk-7-jre":
     ensure => present,
     require => Exec["apt-get update 2"],
-  }
-
-  exec { "accept_license":
-    command => "echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections && echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections",
-    cwd => "/home/vagrant",
-    user => "vagrant",
-    path => "/usr/bin/:/bin/",
-    require => Package["curl"],
-    before => Package["oracle-java7-installer"],
-    logoutput => true,
   }
 
   file { "/vagrant/solr":
@@ -51,7 +41,6 @@ class must-have {
     cwd => "/vagrant",
     user => "vagrant",
     path => "/usr/bin/:/bin/",
-    require => Exec["accept_license"],
     logoutput => true,
   }
 
@@ -73,7 +62,7 @@ class must-have {
     provider => "upstart",
     #hasrestart => true,
     #hasstatus => true,
-    require => [ File["/etc/init/solr.conf"], File["/etc/init.d/solr"], Package["oracle-java7-installer"] ],
+    require => [ File["/etc/init/solr.conf"], File["/etc/init.d/solr"], Package["openjdk-7-jre"] ],
   }
 }
 
